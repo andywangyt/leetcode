@@ -1,7 +1,7 @@
 class Solution {
 
     /**
- * https://leetcode.com/problems/find-all-anagrams-in-a-string/solution/
+ * https://leetcode.com/problems/find-all-anagrams-in-a-string
 
 
  *  Pseudocode
