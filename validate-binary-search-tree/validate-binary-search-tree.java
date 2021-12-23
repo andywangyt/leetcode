@@ -14,22 +14,20 @@
  * }
  */
 class Solution {
-    public boolean isValidBST(TreeNode root) {
-        Deque<TreeNode> stack = new LinkedList<TreeNode>();
-        double inorder = -Double.MAX_VALUE;
-
-        while (!stack.isEmpty() || root != null) {
-            while (root != null) {
-                stack.push(root);
-                root = root.left;
-            }
-            root = stack.pop();
-            if (root.val <= inorder) {
-                return false;
-            }
-            inorder = root.val;
-            root = root.right;
+    public boolean validate(TreeNode root, Integer low, Integer high) {
+        // Empty trees are valid BSTs.
+        if (root == null) {
+            return true;
         }
-        return true;
+        // The current node's value must be between low and high.
+        if ((low != null && root.val <= low) || (high != null && root.val >= high)) {
+            return false;
+        }
+        // The left and right subtree must also be valid.
+        return validate(root.right, root.val, high) && validate(root.left, low, root.val);
+    }
+
+    public boolean isValidBST(TreeNode root) {
+        return validate(root, null, null);
     }
 }
