@@ -1,36 +1,69 @@
-public class Solution {
-    public static List<String> findAllConcatenatedWordsInADict(String[] words) {
-        List<String> result = new ArrayList<>();
-        Set<String> preWords = new HashSet<>();
-        Arrays.sort(words, new Comparator<String>() {
-            public int compare (String s1, String s2) {
-                return s1.length() - s2.length();
-            }
-        });
-        
+class Solution {
+    Trie trie = new Trie();
+
+    public List<String> findAllConcatenatedWordsInADict(String[] words) {
+        List<String> ans = new ArrayList<String>();
+        Arrays.sort(words, (a, b) -> a.length() - b.length());
         for (int i = 0; i < words.length; i++) {
-            if (canForm(words[i], preWords)) {
-                result.add(words[i]);
+            String word = words[i];
+            if (word.length() == 0) {
+                continue;
             }
-            preWords.add(words[i]);
+            boolean[] visited = new boolean[word.length()];
+            if (dfs(word, 0, visited)) {
+                ans.add(word);
+            } else {
+                insert(word);
+            }
         }
-        
-        return result;
+        return ans;
     }
-	
-    private static boolean canForm(String word, Set<String> dict) {
-        if (dict.isEmpty()) return false;
-	boolean[] dp = new boolean[word.length() + 1];
-	dp[0] = true;
-	for (int i = 1; i <= word.length(); i++) {
-	    for (int j = 0; j < i; j++) {
-		if (!dp[j]) continue;
-		if (dict.contains(word.substring(j, i))) {
-		    dp[i] = true;
-		    break;
-		}
-	    }
-	}
-	return dp[word.length()];
+
+    public boolean dfs(String word, int start, boolean[] visited) {
+        if (word.length() == start) {
+            return true;
+        }
+        if (visited[start]) {
+            return false;
+        }
+        visited[start] = true;
+        Trie node = trie;
+        for (int i = start; i < word.length(); i++) {
+            char ch = word.charAt(i);
+            int index = ch - 'a';
+            node = node.children[index];
+            if (node == null) {
+                return false;
+            }
+            if (node.isEnd) {
+                if (dfs(word, i + 1, visited)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    public void insert(String word) {
+        Trie node = trie;
+        for (int i = 0; i < word.length(); i++) {
+            char ch = word.charAt(i);
+            int index = ch - 'a';
+            if (node.children[index] == null) {
+                node.children[index] = new Trie();
+            }
+            node = node.children[index];
+        }
+        node.isEnd = true;
+    }
+}
+
+class Trie {
+    Trie[] children;
+    boolean isEnd;
+
+    public Trie() {
+        children = new Trie[26];
+        isEnd = false;
     }
 }
