@@ -5,22 +5,83 @@ class Solution {
  * https://leetcode.com/problems/meeting-rooms-ii/
  * 
  * 
-	    Diagram:
-			[[0,30], [5,10], [15,20]]
-			
-			
-			heap = [10, 20, 30]
-
-			- check for intersection
-			    -if intersection
-			        - append to heap
-			- else:
-			    - while there is no intersection, pop off heap
-			- max_rooms = len(heap))
+   Example 1: 
+   
+	 	  Meetings :  [[0,30],[5,10],[15,20]]
+		   
+		
+				    Step 1:
+				    Meeting:  [[0,30]]
+				    Heap:  [30]
+				   
+				   
+				    Step 2:
+				    Meeting:  [[5,10]]
+				    Heap:  [10, 30]
+				   
+				    Step 3:
+				    Meeting:  [[15,20]]
+				    Heap:  [20, 30]
+				   
+				    length of heap is 2, we only need two meeting rooms for this case
+		   
+		
+    Example 2: 
+		     [0,30, [0,5],[1,4],[2,3], [5,10], [15,20]
+		     
+		     
+		     Step 1:
+		     meeting:  [0, 30]
+		     Heap:  [30]
+		     
+		     Step 2:
+		     meeting: [0, 5]
+		     Heap: [5, 30]
+		     
+		     
+		     Step 3:
+		     meeting: [1, 4]
+		     Heap: [4, 5, 30]
+		     
+		     Step 4:
+		     meeting: [2, 3]
+		     Heap: [3, 4, 5, 30]
+		     
+		     
+		     Step 5:
+		     meeting: [5, 10]
+		     Heap: [ 10, 30]
+		
+		
+		     Step 6:
+		     meeting: [15, 20]
+		     Heap: [ 20, 30]
+		     
+		        
+		     Need 4 meeting room
+	
+		   
+   Pseudocode:
+		   
+		    1. Sort by start time
+		    2. heap to save the end time
+		    3. Check for intersection
+		        - If there is intersection,   append to the heap
+		        - Else
+		           While there is no intersection, pop off heap
+		           
+		   
+		    4. Heap :   a) Min-heap. add first meeting room end time to the heap
+		                b) keep track of the end time when the meeting room will be ended
+		                c) If the romm is free, extract to the top element, add it back to ending time time
+		                   If not, allocate a new meeting room, add it to the heap.
+		               
+		     5.  Max_room  = max ( len(heap)
+        
 	
 	
 	
-	     Pseudocode 
+	 Details: 
      
         1. Sort the given meetings by their start time.
 		2. Initialize a new min-heap and add the first meeting's ending time to the heap. 
@@ -33,6 +94,7 @@ class Solution {
 		   If not, then we allocate a new room and add it to the heap.
 		5. After processing all the meetings, the size of the heap will tell us the number of 
 		   rooms allocated. This will be the minimum number of rooms needed to accommodate all the meetings
+		        
 		        
 */       
                     
