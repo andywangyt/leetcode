@@ -1,42 +1,19 @@
 class Solution {
-    private int[][] matrix;
-    private int target;
+    public boolean searchMatrix(int[][] matrix, int target) {
+        // start our "pointer" in the bottom-left
+        int row = matrix.length-1;
+        int col = 0;
 
-    private boolean searchRec(int left, int up, int right, int down) {
-        // this submatrix has no height or no width.
-        if (left > right || up > down) {
-            return false;
-        // `target` is already larger than the largest element or smaller
-        // than the smallest element in this submatrix.
-        } else if (target < matrix[up][left] || target > matrix[down][right]) {
-            return false;
-        }
-
-        int mid = left + (right-left)/2;
-
-        // Locate `row` such that matrix[row-1][mid] < target < matrix[row][mid]
-        int row = up;
-        while (row <= down && matrix[row][mid] <= target) {
-            if (matrix[row][mid] == target) {
+        while (row >= 0 && col < matrix[0].length) {
+            if (matrix[row][col] > target) {
+                row--;
+            } else if (matrix[row][col] < target) {
+                col++;
+            } else { // found it
                 return true;
             }
-            row++;
         }
 
-        return searchRec(left, row, mid-1, down) || searchRec(mid+1, up, right, row-1);
-    }
-
-    public boolean searchMatrix(int[][] mat, int targ) {
-        // cache input values in object to avoid passing them unnecessarily
-        // to `searchRec`
-        matrix = mat;
-        target = targ;
-
-        // an empty matrix obviously does not contain `target`
-        if (matrix == null || matrix.length == 0) {
-            return false;
-        }
-
-        return searchRec(0, 0, matrix[0].length-1, matrix.length-1);
+        return false;
     }
 }
