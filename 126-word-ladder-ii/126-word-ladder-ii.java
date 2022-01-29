@@ -1,105 +1,85 @@
-class Solution {
-    Map<String, List<String>> adjList = new HashMap<String, List<String>>();
-    List<String> currPath = new ArrayList<String>();
-    List<List<String>> shortestPaths = new ArrayList<List<String>>();
-    
-    private List<String> findNeighbors(String word, Set<String> wordList) {
-        List<String> neighbors = new ArrayList<String>();
-        char charList[] = word.toCharArray();
-        
-        for (int i = 0; i < word.length(); i++) {
-            char oldChar = charList[i];   
-            
-            // replace the i-th character with all letters from a to z except the original character
-            for (char c = 'a'; c <= 'z'; c++) {
-                charList[i] = c;
-                
-                // skip if the character is same as original or if the word is not present in the wordList
-                if (c == oldChar || !wordList.contains(String.valueOf(charList))) {
-                    continue;
+public class Solution {
+
+    public List<List<String>> findLadders(String beginWord, String endWord, List<String> wordList) {
+        List<List<String>> res = new ArrayList<>();
+        // 因为需要快速判断扩展出的单词是否在 wordList 里，因此需要将 wordList 存入哈希表，这里命名为「字典」
+        Set<String> dict = new HashSet<>(wordList);
+        // 特殊用例判断
+        if (!dict.contains(endWord)) {
+            return res;
+        }
+
+        dict.remove(beginWord);
+
+        // 第 1 步：广度优先遍历建图
+        // 记录扩展出的单词是在第几次扩展的时候得到的，key：单词，value：在广度优先遍历的第几层
+        Map<String, Integer> steps = new HashMap<>();
+        steps.put(beginWord, 0);
+        // 记录了单词是从哪些单词扩展而来，key：单词，value：单词列表，这些单词可以变换到 key ，它们是一对多关系
+        Map<String, List<String>> from = new HashMap<>();
+        int step = 1;
+        boolean found = false;
+        int wordLen = beginWord.length();
+        Queue<String> queue = new LinkedList<>();
+        queue.offer(beginWord);
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                String currWord = queue.poll();
+                char[] charArray = currWord.toCharArray();
+                // 将每一位替换成 26 个小写英文字母
+                for (int j = 0; j < wordLen; j++) {
+                    char origin = charArray[j];
+                    for (char c = 'a'; c <= 'z'; c++) {
+                        charArray[j] = c;
+                        String nextWord = String.valueOf(charArray);
+                        if (steps.containsKey(nextWord) && step == steps.get(nextWord)) {
+                            from.get(nextWord).add(currWord);
+                        }
+                        if (!dict.contains(nextWord)) {
+                            continue;
+                        }
+                        // 如果从一个单词扩展出来的单词以前遍历过，距离一定更远，为了避免搜索到已经遍历到，且距离更远的单词，需要将它从 dict 中删除
+                        dict.remove(nextWord);
+                        // 这一层扩展出的单词进入队列
+                        queue.offer(nextWord);
+
+                        // 记录 nextWord 从 currWord 而来
+                        from.putIfAbsent(nextWord, new ArrayList<>());
+                        from.get(nextWord).add(currWord);
+                        // 记录 nextWord 的 step
+                        steps.put(nextWord, step);
+                        if (nextWord.equals(endWord)) {
+                            found = true;
+                        }
+                    }
+                    charArray[j] = origin;
                 }
-                neighbors.add(String.valueOf(charList));
             }
-            charList[i] = oldChar;
+            step++;
+            if (found) {
+                break;
+            }
         }
-        return neighbors;
+
+        // 第 2 步：深度优先遍历找到所有解，从 endWord 恢复到 beginWord ，所以每次尝试操作 path 列表的头部
+        if (found) {
+            Deque<String> path = new ArrayDeque<>();
+            path.add(endWord);
+            dfs(from, path, beginWord, endWord, res);
+        }
+        return res;
     }
-    
-    private void backtrack(String source, String destination) {
-        // store the path if we reached the endWord
-        if (source.equals(destination)) {
-            List<String> tempPath = new ArrayList<String>(currPath);
-            shortestPaths.add(tempPath);
-        }
-        
-        if (!adjList.containsKey(source)) {
+
+    public void dfs(Map<String, List<String>> from, Deque<String> path, String beginWord, String cur, List<List<String>> res) {
+        if (cur.equals(beginWord)) {
+            res.add(new ArrayList<>(path));
             return;
         }
-        
-        for (int i = 0; i < adjList.get(source).size(); i++) {
-            currPath.add(adjList.get(source).get(i));
-            backtrack(adjList.get(source).get(i), destination);
-            currPath.remove(currPath.size() - 1);
+        for (String precursor : from.get(cur)) {
+            path.addFirst(precursor);
+            dfs(from, path, beginWord, precursor, res);
+            path.removeFirst();
         }
-    }
-    
-    private void bfs(String beginWord, String endWord, Set<String> wordList) {
-        Queue<String> q = new LinkedList<>();
-        q.add(beginWord);
-        
-        // remove the root word which is the first layer in the BFS
-        if (wordList.contains(beginWord)) {
-            wordList.remove(beginWord);
-        }
-        
-        Map<String, Integer> isEnqueued = new HashMap<String, Integer>();
-        isEnqueued.put(beginWord, 1);
-        
-        while (q.size() > 0)  {
-             // visited will store the words of current layer
-            List<String> visited = new ArrayList<String>();
-            
-            for (int i = q.size() - 1; i >= 0; i--) {
-                String currWord = q.peek(); 
-                q.remove();
-
-                // findNeighbors will have the adjacent words of the currWord
-                List<String> neighbors = findNeighbors(currWord, wordList);
-                for (String word : neighbors) {
-                    visited.add(word);
-                    
-                    if (!adjList.containsKey(currWord)) {
-                        adjList.put(currWord, new ArrayList<String>());
-                    }
-                    
-                    // add the edge from currWord to word in the list
-                    adjList.get(currWord).add(word);
-                    if (!isEnqueued.containsKey(word)) {
-                        q.add(word);
-                        isEnqueued.put(word, 1);
-                    }
-                }
-            }
-             // removing the words of the previous layer
-            for (int i = 0; i < visited.size(); i++) {
-                if (wordList.contains(visited.get(i))) {
-                    wordList.remove(visited.get(i));
-                }
-            }
-        }
-    }
-    
-    public List<List<String>> findLadders(String beginWord, String endWord, List<String> wordList) {
-        // copying the words into the set for efficient deletion in BFS
-        Set<String> copiedWordList = new HashSet<>(wordList);
-        // build the DAG using BFS
-        bfs(beginWord, endWord, copiedWordList);
-        
-        // every path will start from the beginWord
-        currPath.add(beginWord);
-        // traverse the DAG to find all the paths between beginWord and endWord
-        backtrack(beginWord, endWord);
-        
-        return shortestPaths;
     }
 }
