@@ -1,4 +1,5 @@
 class Solution {
+    
     private final int[] dir = {-1, 0, 1, 0, -1};
     private final int[][] refl = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
     public int numDistinctIslands2(int[][] grid) {
@@ -8,7 +9,7 @@ class Solution {
         List<Point> list = new ArrayList<>();
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
-                dfs(grid, i, j, list);
+                if (grid[i][j] == 1) bfs(grid, i, j, list);
                 if (list.size() > 0) {
                     set.add(norm(list));
                     list.clear();
@@ -18,12 +19,22 @@ class Solution {
         return set.size();
     }
     
-    private void dfs(int[][] grid, int row, int col, List<Point> list) {
-        if (row < 0 || row >= grid.length || col < 0 || col >= grid[0].length || grid[row][col] != 1) return;
+    private void bfs(int[][] grid, int row, int col, List<Point> list) {
+        Queue<Point> queue = new ArrayDeque<>();
+        Point start = new Point(row, col);
+        queue.add(start);
+        list.add(start);
         grid[row][col] = 2;
-        list.add(new Point(row, col));
-        for (int i = 0; i < 4; i++) {
-            dfs(grid, row + dir[i], col + dir[i+1], list);
+        while (!queue.isEmpty()) {
+            Point p = queue.poll();
+            for (int i = 0; i < 4; i++) {
+                int r = p.x + dir[i], c = p.y + dir[i+1];
+                if (r < 0 || r >= grid.length || c < 0 || c >= grid[0].length || grid[r][c] != 1) continue;
+                grid[r][c] = 2;
+                Point next = new Point(r, c);
+                list.add(next);
+                queue.add(next);
+            }
         }
     }
     
@@ -69,10 +80,6 @@ class Solution {
         @Override
         public int compareTo(Point p) {
             return this.x - p.x == 0 ? this.y - p.y : this.x - p.x;
-        }
-        @Override
-        public String toString() {
-            return String.format("(%d,%d)", this.x, this.y);
         }
     }
 }
