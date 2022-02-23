@@ -1,3 +1,20 @@
+/*
+We go through every transaction and update the values for each person.
+
+If a person has given money to some one else, he gets back that much money. So we add that money to his account.
+If a person owes money, then we deduct the money from his account.
+We will be left with three kinds of people
+
+People who will get money back (Positive)
+People who owe money. (Negative)
+People whoe neither get back or owe money. We will ignore these people as they are settled.
+Now we need to match the positive amounts with negative amounts. Once all the positive and negatives cancel out, we check the transactions required and we take the minimum.
+
+We do not know the order in which these balances are matched which will yeild minimum transactions. So we need to try out all the combinations. We use backtracking/dfs.
+We will discard the dfs where the transactions count is greater than the minimum. (Pruning)
+
+*/
+
 class Solution {
     static int min = Integer.MAX_VALUE;
     public int minTransfers(int[][] transactions) {
