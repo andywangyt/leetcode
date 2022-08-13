@@ -7,11 +7,11 @@ class Solution {
            if (counter.containsKey(num)) {
               int exist = counter.get(num);  
               counter.put(num, exist +1);  
-              System.out.println("exists" + exist + " num " + num);
+             // System.out.println("exists" + exist + " num " + num);
                
            }
            else {
-               System.out.println("npt exists" + " num " + num);
+               //System.out.println("npt exists" + " num " + num);
                counter.put(num,1);   
            }   
        } 
@@ -19,7 +19,7 @@ class Solution {
        int half = nums.length / 2;
        int found = 0; 
        for (Map.Entry<Integer, Integer> item : counter.entrySet()) {
-           System.out.println("item key" + item.getKey() + " value" +  item.getValue());
+           //System.out.println("item key" + item.getKey() + " value" +  item.getValue());
            
            if (item.getValue() > half) {
                found = item.getKey();
